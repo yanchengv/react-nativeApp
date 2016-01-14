@@ -1,39 +1,71 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
 'use strict';
 
 var React = require('react-native');
+var DefaultView = require('./component/DefaultView');
+let FeedView = require('./component/FeedView');
+let Home = require('./Home');
 var {
     AppRegistry,
-    StyleSheet,
-    Text,
     View,
-
+    Navigator,
+    Text,
+    BackAndroid,
+    StyleSheet
     } = React;
 
-var AwesomeProject = React.createClass({
-    render: function() {
+
+var SampleApp = React.createClass({
+
+    configureScene(route){
+        return Navigator.SceneConfigs.FadeAndroid;
+    },
+
+    renderScene(router, navigator){
+        var Component = null;
+
+        this._navigator = navigator;
+        switch(router.name){
+            case "home":
+                Component = Home;
+                break;
+            case "feed":
+                Component = FeedView;
+                break;
+            default: //default view
+                Component = DefaultView;
+        }
+
+        return <Component navigator={navigator} />
+    },
+
+    componentDidMount() {
+        var navigator = this._navigator;
+        BackAndroid.addEventListener('hardwareBackPress', function() {
+            if (navigator && navigator.getCurrentRoutes().length > 1) {
+                navigator.pop();
+                return true;
+            }
+            return false;
+        });
+    },
+
+
+    componentWillUnmount() {
+        BackAndroid.removeEventListener('hardwareBackPress');
+    },
+
+    render() {
         return (
-
-            <View style={styles.container}>
-                <Text style={styles.welcome}>
-                   我要打假220
-                </Text>
-                <Text style={styles.instructions}>
-                    我要打假
-                </Text>
-                <Text style={styles.instructions}>
-                    我要打假{'\n'}
-                    我要打假
-                </Text>
-            </View>
-
-
+            <Navigator
+                initialRoute={{name: 'home'}}
+                configureScene={this.configureScene}
+                renderScene={this.renderScene} />
         );
     }
+
 });
+
+
 
 var styles = StyleSheet.create({
     container: {
@@ -43,7 +75,7 @@ var styles = StyleSheet.create({
         backgroundColor: '#F5FCFF',
     },
     welcome: {
-        fontSize: 20,
+        fontSize: 30,
         textAlign: 'center',
         margin: 10,
     },
@@ -54,4 +86,5 @@ var styles = StyleSheet.create({
     },
 });
 
-AppRegistry.registerComponent('AwesomeProject', () => AwesomeProject);
+AppRegistry.registerComponent('AwesomeProject', () => SampleApp);
+
